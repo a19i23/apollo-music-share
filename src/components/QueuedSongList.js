@@ -7,6 +7,8 @@ import {
   useMediaQuery,
 } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
+import { ADD_OR_REMOVE_FROM_QUEUE } from '../graphql/mutations';
+import { useMutation } from '@apollo/react-hooks';
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -29,23 +31,23 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: 'nowrap',
   },
 }));
-const song = {
-  title: '10,000 days',
-  artist: 'Tool',
-  thumbnail: 'https://img.youtube.com/vi/--ZtUFsIgMk/0.jpg',
-};
+// const song = {
+//   title: '10,000 days',
+//   artist: 'Tool',
+//   thumbnail: 'https://img.youtube.com/vi/--ZtUFsIgMk/0.jpg',
+// };
 
-const QueuedSongList = (props) => {
+const QueuedSongList = ({ queue }) => {
+  console.log({ queue });
   const greaterThanMd = useMediaQuery((theme) => theme.breakpoints.up('md'));
 
   return (
     greaterThanMd && (
       <div style={{ margin: '10px 0' }}>
         <Typography color="textSecondary" variant="button">
-          {' '}
-          Queue (5){' '}
+          Queue ({queue.length})
         </Typography>
-        {Array.from({ length: 5 }, () => song).map((song, i) => (
+        {queue.map((song, i) => (
           <QueuedSong key={i} song={song} />
         ))}
       </div>
@@ -56,6 +58,17 @@ const QueuedSongList = (props) => {
 function QueuedSong({ song }) {
   const classes = useStyles();
   const { title, thumbnail, artist } = song;
+  const [addOrRemoveFromQueue] = useMutation(ADD_OR_REMOVE_FROM_QUEUE, {
+    onCompleted: (data) => {
+      localStorage.setItem('queue', JSON.stringify(data.addOrRemoveFromQueue));
+    },
+  });
+
+  function handleAddOrRemoveFromQueue() {
+    addOrRemoveFromQueue({
+      variables: { input: { ...song, __typname: 'Song' } },
+    });
+  }
 
   return (
     <div className={classes.container}>
@@ -72,7 +85,7 @@ function QueuedSong({ song }) {
           {artist}
         </Typography>
       </div>
-      <IconButton>
+      <IconButton onClick={handleAddOrRemoveFromQueue}>
         <Delete color="error" />
       </IconButton>
     </div>
