@@ -10,11 +10,18 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { gql } from 'apollo-boost';
 import { GET_QUEUED_SONGS } from './queries';
 
+const authToken = 'HASURA_GRAPHQL_ADMIN_SECRET';
+
 const client = new ApolloClient({
   link: new WebSocketLink({
     uri: 'wss://kind-vulture-29.hasura.app/v1/graphql',
     options: {
       reconnect: true,
+      connectionParams: {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
     },
   }),
   cache: new InMemoryCache(),
