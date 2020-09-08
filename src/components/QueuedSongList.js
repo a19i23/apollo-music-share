@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 // };
 
 const QueuedSongList = ({ queue }) => {
-  console.log({ queue });
+  // console.log({ queue });
   const greaterThanMd = useMediaQuery((theme) => theme.breakpoints.up('md'));
 
   return (
